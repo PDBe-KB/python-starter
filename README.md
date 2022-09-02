@@ -1,6 +1,11 @@
 # Python Starter
 
-Starter repo for Python Projects. Should be used to get common linting and formatting started.
+
+[![codecov](https://img.shields.io/codecov/c/github/PDBe-KB/python-starter?style=for-the-badge)](https://codecov.io/gh/PDBe-KB/python-starter)
+[![license](https://img.shields.io/github/license/PDBe-KB/python-starter?style=for-the-badge)](https://raw.githubusercontent.com/PDBe-KB/python-starter/main/LICENSE)
+
+Starter repo for Python Projects. Should be used to get common linting and
+formatting started.
 
 
 ## Run tests
