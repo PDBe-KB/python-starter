@@ -1,0 +1,41 @@
+name: starter
+
+on: [ push ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: [3.7]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        pip install -r dev-requirements.txt
+        pip install -r requirements.txt
+    - name: Run Tests
+      run: |
+        make test
+    - name: Upload coverage to Codecov
+      if: github.ref == 'refs/heads/main'
+      uses: codecov/codecov-action@v1
+      with:
+        file: ./coverage/cobertura-coverage.xml
+        flags: unittests
+        name: codecov-starter
+        fail_ci_if_error: true
+    - name: Wheel build
+      if: github.ref == 'refs/heads/main'
+      run: |
+        pip install twine
+        python setup.py sdist bdist_wheel
+        TWINE_PASSWORD=${TWINE_PASSWORD} TWINE_USERNAME=${TWINE_USERNAME} python -m twine upload --repository-url ${PIP_INDEX_URL%/simple} dist/*
+      continue-on-error: false
