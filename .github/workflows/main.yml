@@ -4,7 +4,6 @@ on: [ push ]
 
 jobs:
   test:
-
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 4
@@ -34,13 +33,12 @@ jobs:
         fail_ci_if_error: true
 
   deploy:
-
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: test
 
     steps:
     - name: Wheel build
-      if: github.ref == 'refs/heads/main'
       run: |
         pip install twine wheel
         python setup.py sdist bdist_wheel
