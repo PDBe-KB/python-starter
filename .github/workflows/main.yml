@@ -3,7 +3,7 @@ name: starter
 on: [ push ]
 
 jobs:
-  build:
+  test:
 
     runs-on: ubuntu-latest
     strategy:
@@ -32,6 +32,13 @@ jobs:
         flags: unittests
         name: codecov-starter
         fail_ci_if_error: true
+
+  deploy:
+
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
     - name: Wheel build
       if: github.ref == 'refs/heads/main'
       run: |
