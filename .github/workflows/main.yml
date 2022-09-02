@@ -1,9 +1,12 @@
-name: starter
+name: Build and publish the package to internal PDBe PyPi registry
+
+env:
+  PACKAGE_NAME: starter
 
 on: [ push ]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 4
@@ -29,18 +32,33 @@ jobs:
       with:
         file: ./coverage/cobertura-coverage.xml
         flags: unittests
-        name: codecov-starter
+        name: codecov-${{ env.PACKAGE_NAME }}
         fail_ci_if_error: true
+    - name: Create distribution
+      if: github.ref == 'refs/heads/main'
+      run: |
+        pip install wheel
+        python setup.py sdist bdist_wheel
+    - name: Upload artifact for publish job
+      if: github.ref == 'refs/heads/main'
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ env.PACKAGE_NAME }}-app
+        path: dist/
 
-  deploy:
+  publish:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    needs: test
+    needs: build
 
     steps:
-    - name: Wheel build
+    - name: Download artifact from build job
+      uses: actions/download-artifact@v3
+      with:
+        name: ${{ env.PACKAGE_NAME }}-app
+        path: dist/
+    - name: Publish to internal PyPi
       run: |
-        pip install twine wheel
-        python setup.py sdist bdist_wheel
+        pip install twine
         TWINE_PASSWORD=${{ secrets.TWINE_PASSWORD }} TWINE_USERNAME=${{ secrets.TWINE_USERNAME }} python -m twine upload --repository-url ${{ secrets.PIP_INDEX_URL }} dist/*
       continue-on-error: false
